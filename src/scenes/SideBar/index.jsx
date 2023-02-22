@@ -9,6 +9,7 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import TableRowsOutlinedIcon from '@mui/icons-material/TableRowsOutlined';
+import { useSelector } from "react-redux";
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -32,7 +33,7 @@ const SideBar = () => {
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
-
+  const currentUser = useSelector((state) => state.profile)
   return (
     <Box
       sx={{
@@ -79,15 +80,14 @@ const SideBar = () => {
               </Box>
             )}
           </MenuItem>
-
-          {/* {!isCollapsed && (
+          {(!isCollapsed && currentUser) && (
             <Box mb="25px">
               <Box display="flex" justifyContent="center" alignItems="center">
                 <img
                   alt="profile-user"
                   width="100px"
                   height="100px"
-                  src={`https://pbs.twimg.com/media/EfsKT68UwAU10_E.jpg`}
+                  src={currentUser.img}
                   style={{ cursor: "pointer", borderRadius: "50%", objectFit:"cover" }}
                 />
               </Box>
@@ -98,11 +98,11 @@ const SideBar = () => {
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  Phathompong
+                  { currentUser.f_name } { currentUser.l_name }
                 </Typography>
               </Box>
             </Box>
-          )} */}
+          )}
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item

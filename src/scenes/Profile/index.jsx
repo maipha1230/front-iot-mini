@@ -22,6 +22,8 @@ import LZString from "lz-string";
 import { successAlert } from "../../services/sweetAlert";
 import { API_URL } from "../../config/config";
 import Resizer from "react-image-file-resizer";
+import { useDispatch } from "react-redux";
+import { setProfile } from "../../redux/reducers/profileSlice";
 
 const profileSchema = yup.object().shape({
   firstname: yup.string().required("firstname is required"),
@@ -31,7 +33,8 @@ const profileSchema = yup.object().shape({
 const Profile = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [profile, setProfile] = useState("");
+  const dispatch = useDispatch();
+  const [imageProfile, setImageProfile] = useState("");
   const [imageUpload, setImageUpload] = useState(null);
   const [preview, setPreview] = useState(false);
   const [initialProfileForm, setInitialProfileForm] = useState({
@@ -46,7 +49,7 @@ const Profile = () => {
   const fetchData = async () => {
     const res = await getUserSelf();
     if (res.status === 200) {
-      setProfile(res.data.picture);
+      setImageProfile(res.data.picture);
       setInitialProfileForm({
         firstname: res.data?.f_name,
         lastname: res.data?.l_name,
@@ -58,6 +61,11 @@ const Profile = () => {
     updateUserSelft(values)
       .then((res) => {
         if (res.status === 200) {
+          getUserSelf().then((res) => {
+            if (res.status == 200) {
+              dispatch(setProfile(res.data))
+            }
+          })
           successAlert(res.data.msg);
           fetchData();
         }
@@ -74,7 +82,7 @@ const Profile = () => {
       reader.readAsDataURL(event.target.files[0]);
       reader.onload = () => {
         // console.log(reader.result); //base64encoded string
-        setProfile(reader.result);
+        setImageProfile(reader.result);
         setPreview(true);
       };
       reader.onerror = (error) => {
@@ -89,6 +97,11 @@ const Profile = () => {
       formData.append("gallery", imageUpload);
       const res = await uploadImage(formData);
       if (res.status === 200) {
+        getUserSelf().then((res) => {
+          if (res.status == 200) {
+            dispatch(setProfile(res.data))
+          }
+        })
         successAlert(res.data.msg);
         setPreview(false);
         setImageUpload(null);
@@ -98,22 +111,6 @@ const Profile = () => {
       console.log(error);
     }
   };
-
-  const resizeFile = (file) =>
-    new Promise((resolve) => {
-      Resizer.imageFileResizer(
-        file,
-        500,
-        500,
-        "JPEG",
-        100,
-        0,
-        (uri) => {
-          resolve(uri);
-        },
-        "base64"
-      );
-    });
 
   return (
     <Box p={3} display="flex" flexDirection={"column"} gap="1.5rem">
@@ -142,12 +139,12 @@ const Profile = () => {
             style={{ display: "none" }}
           />
           <Box display="flex" justifyContent="center" alignItems="center">
-            {profile ? (
+            {imageProfile ? (
               <img
                 alt="profile-user"
                 width="150px"
                 height="150px"
-                src={preview ? profile : `${API_URL}/${profile}`}
+                src={preview ? imageProfile : `${API_URL}/${imageProfile}`}
                 style={{
                   cursor: "pointer",
                   borderRadius: "50%",

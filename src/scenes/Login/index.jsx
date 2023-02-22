@@ -16,6 +16,8 @@ import { ColorModeContext, tokens } from "../../theme";
 import { createUser, loginUser } from "../../services/apiService";
 import { useNavigate } from "react-router-dom";
 import { successAlert } from "../../services/sweetAlert";
+import { useDispatch } from "react-redux";
+import { setProfile } from "../../redux/reducers/profileSlice";
 
 const initialLoginForm = {
   username: "",
@@ -48,29 +50,34 @@ const Login = () => {
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
   const [isLoginPage, setIsLoginPage] = useState(true);
+  const dispatch = useDispatch();
 
   const onSubmitLogin = (values) => {
     loginUser(values.username, values.password).then((res) => {
-        if (res.status == 200) {
-            successAlert(res.data.msg)
-            localStorage.setItem('access-token', res.data.token)
-            navigate("/")
-        } 
-    })
+      if (res.status == 200) {
+        dispatch(setProfile(res.data.profile))
+        successAlert(res.data.msg);
+        localStorage.setItem("access-token", res.data.token);
+        navigate("/");
+      }
+    });
   };
 
   const onSubmitRegisterForm = (values) => {
-        if (values.password1 !== values.password2) {
-            console.log("password not matches");
-        } else [
-            createUser(values).then((res) => {
-                if (res.status == 201) {
-                  successAlert(res.data.msg).then(() => {
-                    setIsLoginPage(true)
-                  })
-                }
-            }).catch(error => console.log(error))
-        ]
+    if (values.password1 !== values.password2) {
+      console.log("password not matches");
+    } else
+      [
+        createUser(values)
+          .then((res) => {
+            if (res.status == 201) {
+              successAlert(res.data.msg).then(() => {
+                setIsLoginPage(true);
+              });
+            }
+          })
+          .catch((error) => console.log(error)),
+      ];
   };
 
   return (

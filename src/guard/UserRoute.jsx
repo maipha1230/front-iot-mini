@@ -12,7 +12,6 @@ const useAuth = () => {
 
 const UserRoute = () => {
     const isAuth = useAuth();
-    console.log(isAuth);
     return isAuth ? <Outlet /> : < Navigate to= "/login" />
 }
 
